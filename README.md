@@ -2,7 +2,7 @@
 
 forked from https://github.com/phips/splunkbox
 
-Installs and sets running Splunk, on top of a [@core CentOS Vagrant Box](http://vntx.cc/boxes/centos65.box).
+Installs and sets running Splunk, on top of a [@core CentOS 7 Vagrant Box](https://atlas.hashicorp.com/centos/boxes/7).
 
 You need to have [Ansible](http://ansible.com) installed prior to spinning this box up.
 

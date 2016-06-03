@@ -6,7 +6,7 @@ Installs and configures a Splunk cluster, on top of a [CentOS 7 Vagrant Box](htt
 
 You need to have [Ansible](http://ansible.com) installed prior to spinning this box up.
 
-Look at [playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/master/playbook.yml) to see what Ansible is doing to the base CentOS [box](http://docs.vagrantup.com/v2/virtualbox/boxes.html).
+Look at [playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/master/playbook.yml) (for indexers and search heads), and [uf-playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/master/uf-playbook.yml) (for the universal forwarder) to see what Ansible is doing to the base CentOS [box](http://docs.vagrantup.com/v2/virtualbox/boxes.html).
 
 **Software versions information**
 
@@ -26,3 +26,20 @@ The VMs will boot and install Splunk and will also install nginx from [EPEL](htt
 
 There are also a number of Splunk '[must have](http://wiki.splunk.com/Things_I_wish_I_knew_then)' apps that are installed. You'll need to download these from [apps.splunk.com]() first - all the URLs are noted in [the playbook](http://github.com/phips/splunkbox/blob/master/playbook.yml). If you want to skip them, just set installapps to false (with [extra-vars](http://docs.ansible.com/playbooks_variables.html#passing-variables-on-the-command-line) - see the [Vagrantfile](http://github.com/minck/vagrant-splunk-cluster/blob/master/Vagrantfile)).
 NOTE - this is a work in progress, some of the apps being installed are deprecated with the version of splunk being installed. Currently they are still being installed, won't hurt anything but may not work properly.
+
+<br />
+**MACHINE CONFIGURATION**
+
+| VM Name|Default IP| VM Port <=> Host Port|Description|
+| -------|----------|----------------------|-----------|
+|master|192.168.33.101|8000<=>8001|cluster master|
+|index1|192.168.33.102|8000<=>8002|indexer node|
+|index2|192.168.33.103|8000<=>8003|indexer node|
+|index3|192.168.33.104|8000<=>8004|indexer node|
+|index4|192.168.33.105|8000<=>8005|indexer node|
+|search1|192.168.33.106|8000<=>8006|search head|
+|search2|192.168.33.107|8000<=>8007|search head|
+|search3|192.168.33.108|8000<=>8008|search head|
+|uf1|192.168.33.109|N/A|universal forwarder|
+
+Access the splunk console via [http://localhost:8001 ] (http://localhost:8001)

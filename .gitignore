@@ -8,4 +8,6 @@ splunklogs/
 sw/
 uf-playbook.retry
 Vagrantfile.orig
-
+*.rpm
+*.tar
+*.gz

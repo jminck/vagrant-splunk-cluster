@@ -2,7 +2,7 @@
 
 forked from https://github.com/phips/splunkbox
 
-Installs and sets running Splunk, on top of a [@core CentOS 7 Vagrant Box](https://atlas.hashicorp.com/centos/boxes/7).
+Installs and configures a Splunk cluster, on top of a [CentOS 7 Vagrant Box](https://atlas.hashicorp.com/centos/boxes/7).
 
 You need to have [Ansible](http://ansible.com) installed prior to spinning this box up.
 
@@ -12,7 +12,6 @@ Look at [playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/mast
 
 | Software              | Version     | Download                        |
 | --------------------------------- | ----------- | ----------------------------------------- |
-| CentOS|7.0| Guest OS <br/> VMWare and Virtual box :[chef/centos-7.0](https://atlas.hashicorp.com/centos/boxes/7) <br/> & parallels : [parallels/centos-7.1](https://atlas.hashicorp.com/parallels/boxes/centos-7.1) |
 | Splunk              | 6.4.0    |    [Download Splunk](https://www.splunk.com/page/download_track?file=6.4.0/linux/splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm&platform=Linux&architecture=x86_64&version=6.4.0&product=splunk&typed=release&name=linux_installer) |
 | Splunk Forwarder                     | 6.4.0      | [Download Splunk Forwarder](https://www.splunk.com/page/download_track?file=6.4.0/linux/splunkforwarder-6.4.0-f2c836328108-Linux-x86_64.tgz&platform=Linux&architecture=x86_64&version=6.4.0&product=universalforwarder&typed=release&name=linux_installer)  |
 | Sideview app | 1.3.5 | [Download](https://splunkbase.splunk.com/)|
@@ -20,6 +19,8 @@ Look at [playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/mast
 | Splunk 6.x Dashboard Examples | 5.0.1| [Download](https://splunkbase.splunk.com/app/1603/)|
 | Splunk App for Unix and Linux | 5.1.0| [Download](https://splunkbase.splunk.com/app/273/)|
 | Virtualbox VM Additions | 5.0.16| Extract from Virtualbox additions ISO)|
+| Download these requirements from my archive | all | [download](https://goo.gl/FLeBOU)
+
 
 The VMs will boot and install Splunk and will also install nginx from [EPEL](https://fedoraproject.org/wiki/EPEL), set it listening on port 80, and proxy to Splunk. There are notes in the [splunk.conf](http://github.com/minck/vagrant-splunk-cluster/blob/master/templates/splunk.conf.j2) file about how to listen on https, and how to use basic authentication.
 

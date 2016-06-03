@@ -43,3 +43,36 @@ NOTE - this is a work in progress, some of the apps being installed are deprecat
 |uf1|192.168.33.109|N/A|universal forwarder|
 
 Access the splunk console via [http://localhost:8001 ] (http://localhost:8001)
+
+
+
+
+1. Pre Requisite & Set up
+--
+
+**Must have on your host machine**
+
+* VirtualBox (I'm using 5.0.15) 
+* Vagrant (I'm using 1.8.1)
+* Ansible installed on the host machine (I'm using 2.0.2.0)
+
+**Clone this repository**
+
+`git clone https://github.com/jminck/vagrant-splunk-cluster.git`
+
+**Download Installation Files**
+
+Download the software requirements for the Splunk cluster from their respective authoritative locations outlined above in teh Software Versions Information table, or from my archive [download](https://goo.gl/FLeBOU)
+*	Place all the files sw/ subfolder of this repo.
+*	Optional - grab sampledata folder from my download link and unzip to sampledata/ subfolder in repo
+
+
+2. Launch a new Splunk cluster
+--
+
+**Run the cluster**
+
+Simply go in the cloned directory (vagrant-splunk-cluster by default).<br />
+Execute this command :
+**vagrant up**
+

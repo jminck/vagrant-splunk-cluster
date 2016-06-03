@@ -1,4 +1,4 @@
-# CentOS 7 Splunk cluster install via Ansible
+# Vagrant CentOS 7 Splunk cluster deployment via Ansible
 
 forked from https://github.com/phips/splunkbox
 
@@ -42,8 +42,6 @@ NOTE - this is a work in progress, some of the apps being installed are deprecat
 |search3|192.168.33.108|8000<=>8008|search head|
 |uf1|192.168.33.109|N/A|universal forwarder|
 
-Access the splunk console via [http://localhost:8001 ] (http://localhost:8001)
-
 
 
 
@@ -63,16 +61,35 @@ Access the splunk console via [http://localhost:8001 ] (http://localhost:8001)
 **Download Installation Files**
 
 Download the software requirements for the Splunk cluster from their respective authoritative locations outlined above in teh Software Versions Information table, or from my archive [download](https://goo.gl/FLeBOU)
-*	Place all the files sw/ subfolder of this repo.
-*	Optional - grab sampledata folder from my download link and unzip to sampledata/ subfolder in repo
+*	Place all the files sw/ subfolder of this repo. the sw/ folder should have the following contents:
 
+   | File Size        |  File name                                      |
+   |------------------|-------------------------------------------------|
+   |197800    | sideview-utils-lgpl_135.tgz                             |
+   |2970361   | sos-splunk-on-splunk_321.tgz                            |
+   |202219082 | splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm          |
+   |4239833   | splunk-6x-dashboard-examples_501.tgz                    |
+   |2370913   | splunk-app-for-unix-and-linux_510.tgz                   |
+   |19449970  | splunkforwarder-6.4.0-f2c836328108-linux-2.6-x86_64.rpm |
+   |43529656  |vmadditions.tar.gz                                       |
+
+*	Optional - grab sampledata/ folder from my download link and unzip to sampledata/ subfolder in repo
+  note - this is not used in any automation process, so its not a requirement for the deployment to work
 
 2. Launch a new Splunk cluster
 --
 
-**Run the cluster**
+**Launch the cluster deployment**
 
 Simply go in the cloned directory (vagrant-splunk-cluster by default).<br />
 Execute this command :
 **vagrant up**
 
+3. Access the cluster
+--
+
+**Open Splunk console in browser**
+Access the splunk console on master node via [http://localhost:8001 ] (http://localhost:8001)<br />
+**username:** admin <br />
+**password:** splunk <br />
+(default Splunk credentials are admin/changeme but Ansible automation sets the password to "splunk" during installation) <br />

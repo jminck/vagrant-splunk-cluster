@@ -4,7 +4,7 @@ forked from https://github.com/phips/splunkbox
 
 Installs and configures a Splunk cluster, on top of a [CentOS 7 Vagrant Box](https://atlas.hashicorp.com/centos/boxes/7).
 
-You need to have [Ansible](http://ansible.com) installed prior to spinning this box up.
+You need to have [Ansible](http://ansible.com) installed prior to spinning this box up. 
 
 Look at [playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/master/playbook.yml) (for indexers and search heads), and [uf-playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/master/uf-playbook.yml) (for the universal forwarder) to see what Ansible is doing to the base CentOS [box](http://docs.vagrantup.com/v2/virtualbox/boxes.html).
 
@@ -53,6 +53,7 @@ NOTE - this is a work in progress, some of the apps being installed are deprecat
 * VirtualBox (I'm using 5.0.15) 
 * Vagrant (I'm using 1.8.1)
 * Ansible installed on the host machine (I'm using 2.0.2.0)
+  -  I'm running on a MAC, so I installed [Brew] (http://brew.sh/) and then ran **brew install ansible** to get ansible installed on my host machine
 
 **Clone this repository**
 

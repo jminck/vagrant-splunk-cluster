@@ -1,0 +1,7 @@
+paths to splunk console
+http://127.0.0.1:8002/en-US/account/login?return_to=%2Fen-US%2F
+http://127.0.0.1:8003/en-US/account/login?return_to=%2Fen-US%2F
+
+wget -O splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm 'https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=Linux&version=6.4.0&product=splunk&filename=splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm&wget=true'
+
+brew install ansible

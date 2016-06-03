@@ -1,0 +1,11 @@
+.DS_Store
+*.sw?
+.vagrant
+vagrant_ansible_inventory_default
+sw
+*.box
+splunklogs/
+sw/
+uf-playbook.retry
+Vagrantfile.orig
+

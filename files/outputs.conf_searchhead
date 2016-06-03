@@ -1,0 +1,12 @@
+# Turn off indexing on the search head
+[indexAndForward]
+index = false
+
+[tcpout]
+defaultGroup = my_search_peers
+forwardedindex.filter.disable = true
+indexAndForward = false
+
+[tcpout:my_search_peers]
+server=192.168.33.102:9997,192.168.33.103:9997,192.168.33.104:9997,192.168.33.105:9997
+autoLB = true

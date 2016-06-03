@@ -1,0 +1,44 @@
+#master node
+sudo /opt/splunk/bin/splunk enable web-ssl 
+sudo /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 4 -search_factor 3 
+sudo /opt/splunk/bin/splunk restart
+
+#peer nodes
+sudo /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk
+sudo /opt/splunk/bin/splunk restart
+
+
+#search head cluster, run on master
+sudo /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
+
+#init sh cluster members search1-3  
+sudo /opt/splunk/bin/splunk init shcluster-config -mgmt_uri https://192.168.33.101:8089  -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1  -auth admin:splunk -secret mySplunkSecret
+
+/opt/splunk/bin/splunk restart
+
+# run on search1
+sudo /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.101:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
+splunk restart 
+
+
+#search heads, do this on search1-3
+sudo /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:splunk
+sudo /opt/splunk/bin/splunk restart
+
+#search heads search1-3
+sudo /opt/splunk/bin/splunk disable local-index
+
+#search1-3 update outputs.conf with the one that disables local indexing and configs forwarding to indexers
+/opt/splunk/etc/system/local/outputs.conf 
+
+
+# Traffic data
+yum install wget -y
+wget https://data.cityofnewyork.us/api/views/h9gi-nx95/rows.csv?accessType=DOWNLOAD
+mv rows.csv\?accessType\=DOWNLOAD NYC_CRASH_DATA.CSV
+/opt/splunk/bin/splunk add oneshot ./NYC_CRASH_DATA.CSV -auth admin:splunk
+
+#Parking ticket data
+https://data.cityofnewyork.us/api/views/jt7v-77mi/rows.csv?accessType=DOWNLOAD 
+mv rows.csv\?accessType\=DOWNLOAD PARKING_VIOLATIONS.CSV
+/opt/splunk/bin/splunk add oneshot ./PARKING_VIOLATIONS.CSV -auth admin:splunk

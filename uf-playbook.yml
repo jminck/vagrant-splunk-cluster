@@ -1,0 +1,101 @@
+---
+- hosts: uf1
+  vars:
+      splunkver: 6.4.0-f2c836328108-linux-2.6-x86_64 
+      slunkforwarderver: 6.4.0-f2c836328108-linux-2.6-x86_64
+      installapps: False
+      # ssl_enabled
+      # auth_enabled
+
+  tasks:
+    - name: Ensure libselinux-python installed
+      yum: name=libselinux-python state=present
+
+    - name: Ensure net-tools installed
+      yum: name=net-tools state=present
+
+    - name: Ensure wget installed
+      yum: name=wget state=present
+
+    - name: Ensure aliases.sh present
+      copy: src=files/aliases.sh dest=/etc/profile.d/aliases.sh
+            owner=root group=root mode=0644
+
+    - name: Ensure EPEL repo is configured
+      shell: rpm -q epel-release || yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+    - name: Ensure hostname is in /etc/hosts
+      lineinfile:
+        dest=/etc/hosts
+        regexp="^{{ ansible_default_ipv4.address }}.+$"
+        line="{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }}"
+
+    # pulls from EPEL
+    - name: Ensure nginx is installed
+      yum: name=nginx state=present
+
+    - name: Ensure nginx config in place
+      copy: dest=/etc/nginx/nginx.conf
+            src=files/nginx.conf
+      notify:
+        - restart nginx
+
+    - name: Ensure nginx proxies for local Splunk
+      template: src=templates/splunk.conf.j2 dest=/etc/nginx/conf.d/splunk.conf
+                owner=root group=root mode=0644
+      notify:
+        - restart nginx
+
+    - name: Ensure Splunk universal forwarder package installed
+      yum:  name=/home/vagrant/sync/sw/splunkforwarder-{{ slunkforwarderver }}.rpm state=present
+
+
+
+    - name: Ensure Splunk service is configured
+      copy: src=files/splunk.init dest=/etc/init.d/splunk
+            owner=root group=root mode=0755
+      notify:
+        - restart splunk
+
+#    - name: Start Splunk service
+#      service: name=splunk state=started enabled=yes
+
+    - name: Start nginx service
+      service: name=nginx state=started enabled=yes
+
+    # pulls from EPEL
+    - name: Ensure dkms is installed needed to preserve additions thru kernel updates
+      yum: name=dkms state=present
+
+    - name: Extract vm additions
+      unarchive: src=sw/vmadditions.tar.gz
+                 dest=/tmp
+                 creates=/tmp/vmadditions
+
+    - name: Install VM additions
+      shell: /tmp/additions/VBoxLinuxAdditions.run
+
+    - name: Set splunk admin password
+      shell: /opt/splunkforwarder/bin/splunk edit user admin -password splunk -auth admin:changeme  --accept-license
+
+    - name: Enable splunk boot start
+      shell: /opt/splunkforwarder/bin/splunk enable boot-start
+
+    - name: Enable forward server
+      shell: /opt/splunkforwarder/bin/splunk add forward-server 192.168.33.102:9997 -auth admin:splunk
+
+    - name: Add second forward server
+      shell: /opt/splunkforwarder/bin/splunk add forward-server 192.168.33.103:9997 -auth admin:splunk
+
+    - name: Add monitor
+      shell: /opt/splunkforwarder/bin/splunk add monitor /var/log -auth admin:splunk
+
+    - name: restart splunk forwarder
+      shell: /opt/splunkforwarder/bin/splunk restart
+
+    - name: restart nginx
+      service: name=nginx state=restarted
+
+#    - name: Restart Splunk service
+#      service: name=splunk state=restarted enabled=yes
+# vim: set ts=2 sw=2 et ft=ansible:

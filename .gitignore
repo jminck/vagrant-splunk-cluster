@@ -9,3 +9,4 @@ Vagrantfile.orig
 *.rpm
 *.tar
 *.gz
+*.tgz

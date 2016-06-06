@@ -114,7 +114,7 @@
     - name: Enable forward port
       shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:splunk
       when: "'index' in inventory_hostname"
-	  
+
     - name: Get rid of first time logging in? message
       shell: touch /opt/splunk/etc/.ui_login
 

@@ -10,3 +10,5 @@ Vagrantfile.orig
 *.tar
 *.gz
 *.tgz
+*.csv
+*.CSV

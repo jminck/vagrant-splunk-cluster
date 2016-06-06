@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
    index1.vm.hostname = "index1"
    index1.vm.network :forwarded_port, guest: 8000, host: 8002
    index1.vm.network "private_network", ip: "192.168.33.102"
-   index1.vm.synced_folder "splunklogs/", "/splunklogs"
+   index1.vm.synced_folder "sampledata/", "/sampledata"
    index1.vm.provider :virtualbox do |vb|
      vb.gui = false
    end
@@ -121,7 +121,7 @@ Vagrant.configure("2") do |config|
    search1.vm.network :forwarded_port, guest: 8000, host: 8006
    search1.vm.network "private_network", ip: "192.168.33.106"
    search1.vm.provider :virtualbox do |vb|
-   search1.vm.synced_folder "splunklogs/", "/splunklogs"
+   search1.vm.synced_folder "sampledata/", "/sampledata"
     vb.gui = false
    end
 
@@ -141,7 +141,7 @@ Vagrant.configure("2") do |config|
    search2.vm.hostname = "search2"
    search2.vm.network :forwarded_port, guest: 8000, host: 8007
    search2.vm.network "private_network", ip: "192.168.33.107"
-   search2.vm.synced_folder "splunklogs/", "/splunklogs"
+   search2.vm.synced_folder "sampledata/", "/sampledata"
    search2.vm.provider :virtualbox do |vb|
     vb.gui = false
    end
@@ -162,7 +162,7 @@ Vagrant.configure("2") do |config|
    search3.vm.hostname = "search3"
    search3.vm.network :forwarded_port, guest: 8000, host: 8008
    search3.vm.network "private_network", ip: "192.168.33.108"
-   search3.vm.synced_folder "splunklogs/", "/splunklogs"
+   search3.vm.synced_folder "sampledata/", "/sampledata"
    search3.vm.provider :virtualbox do |vb|
      vb.gui = false
    end
@@ -192,7 +192,7 @@ Vagrant.configure("2") do |config|
      ansible.sudo              = true
      ansible.host_key_checking = false
    end
-   uf1.vm.synced_folder "splunklogs/", "/splunklogs"
+   uf1.vm.synced_folder "sampledata/", "/sampledata"
   end
 
 end

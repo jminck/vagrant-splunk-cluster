@@ -132,7 +132,7 @@
       when: "'master' in inventory_hostname"
 
 	  - name: Splunk master settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 3
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2
       when: "'master' in inventory_hostname"
 
 	  - name: Splunk peer settings

@@ -153,19 +153,19 @@
 
 ## Need to fix this, each search peer needs to point at its own mgmt_uri
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk -election true -mgmt_uri "https://192.168.33.106:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://192.168.33.106:8089" -auth admin:splunk
       when: "'search1' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk -election true -mgmt_uri "https://192.168.33.107:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://192.168.33.107:8089" -auth admin:splunk
       when: "'search2' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk -election true -mgmt_uri "https://192.168.33.108:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri  "https://192.168.33.108:8089" -auth admin:splunk
       when: "'search3' in inventory_hostname"
       notify:
         - restart splunk

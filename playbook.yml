@@ -121,7 +121,7 @@
       shell: ifdown eth1
       
     - name: disable eth1 (workaround because its not getting ip4 address assigned on first start)
-      shell: up eth1
+      shell: ifup eth1
 
     - name: Set splunk admin password
       shell: /opt/splunk/bin/splunk edit user admin -password splunk -auth admin:changeme

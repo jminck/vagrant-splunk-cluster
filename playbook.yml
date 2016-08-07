@@ -84,6 +84,15 @@
       notify:
         - restart splunk
 
+    # https://apps.splunk.com/app/2834/
+    - name: Install Splunk App for UNIX and Linux
+      unarchive: src=sw/app-for-twitter-data_301.tgz 
+                 dest=/opt/splunk/etc/apps
+                 creates=/opt/splunk/etc/apps/app-for-twitter-data
+      when: installapps
+      notify:
+        - restart splunk
+		
     - name: Ensure Splunk service is configured
       copy: src=files/splunk.init dest=/etc/init.d/splunk
             owner=root group=root mode=0755
@@ -118,6 +127,45 @@
     - name: Get rid of first time logging in? message
       shell: touch /opt/splunk/etc/.ui_login
 
+    - name: Splunk enable web-ssl
+      command: /opt/splunk/bin/splunk enable web-ssl
+      when: "'master' in inventory_hostname"
+	  
+    - name: Splunk master settings
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 3
+      when: "'master' in inventory_hostname"
+
+    - name: Splunk peer settings
+      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk
+      when: "'index' in inventory_hostname"	 
+	  
+    - name: Splunk search head master init
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
+      when: "'master' in inventory_hostname"	  
+
+    - name: Splunk search head peers init
+      command: /opt/splunk/bin/splunk init shcluster-config -mgmt_uri https://192.168.33.101:8089  -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1  -auth admin:splunk -secret mySplunkSecret
+      when: "'search' in inventory_hostname"	 
+
+    - name: Splunk search head captain init
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.101:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
+      when: "'search' in inventory_hostname"	 
+
+    - name: Splunk search head peers config
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:splunk
+      when: "'search' in inventory_hostname"
+
+    - name: Splunk search head disable local index 
+      command: /opt/splunk/bin/splunk disable local-index
+      when: "'search' in inventory_hostname"
+
+    - name: Update outputs.conf on search heads
+      copy: dest=/opt/splunk/etc/system/local/outputs.conf
+            src=files/outputs.conf_searchhead
+      when: "'search' in inventory_hostname"
+      notify:
+        - restart nginx
+	  
   handlers:
     - name: restart splunk
       service: name=splunk state=restarted
@@ -126,3 +174,4 @@
       service: name=nginx state=restarted
 
 # vim: set ts=2 sw=2 et ft=ansible:
+

@@ -93,7 +93,11 @@
       notify:
         - restart splunk
 
+<<<<<<< HEAD
     - name: Ensure Splunk service is configured
+=======
+		- name: Ensure Splunk service is configured
+>>>>>>> 79e61388ea8236bfa502581620e0c24d445ba53a
       copy: src=files/splunk.init dest=/etc/init.d/splunk
             owner=root group=root mode=0755
       notify:
@@ -130,6 +134,7 @@
     - name: Splunk enable web-ssl
       command: /opt/splunk/bin/splunk enable web-ssl
       when: "'master' in inventory_hostname"
+<<<<<<< HEAD
       notify:
         - restart splunk
 
@@ -170,13 +175,51 @@
         - restart splunk
 
     - name: Update outputs.conf on search heads
+=======
+
+	  - name: Splunk master settings
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2
+      when: "'master' in inventory_hostname"
+
+	  - name: Splunk peer settings
+      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk
+      when: "'index' in inventory_hostname"	 
+
+	  - name: Splunk search head master init
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
+      when: "'master' in inventory_hostname"	  
+
+	  - name: Splunk search head peers init
+      command: /opt/splunk/bin/splunk init shcluster-config -mgmt_uri https://192.168.33.101:8089  -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1  -auth admin:splunk -secret mySplunkSecret
+      when: "'search' in inventory_hostname"	 
+
+	  - name: Splunk search head captain init
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.101:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
+      when: "'search' in inventory_hostname"	 
+
+	  - name: Splunk search head peers config
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:splunk
+      when: "'search' in inventory_hostname"
+
+	  - name: Splunk search head disable local index 
+      command: /opt/splunk/bin/splunk disable local-index
+      when: "'search' in inventory_hostname"
+
+	  - name: Update outputs.conf on search heads
+>>>>>>> 79e61388ea8236bfa502581620e0c24d445ba53a
       copy: dest=/opt/splunk/etc/system/local/outputs.conf
             src=files/outputs.conf_searchhead
       when: "'search' in inventory_hostname"
       notify:
+<<<<<<< HEAD
         - restart splunk
 
   handlers:
+=======
+        - restart nginx
+
+    handlers:
+>>>>>>> 79e61388ea8236bfa502581620e0c24d445ba53a
     - name: restart splunk
       service: name=splunk state=restarted
 

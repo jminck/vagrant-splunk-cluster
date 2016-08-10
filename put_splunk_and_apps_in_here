@@ -1,0 +1,8 @@
+-rw-r--r--@ 1 vagrant  1385651864     197800 Apr 21 12:12 sideview-utils-lgpl_135.tgz
+-rw-r--r--@ 1 vagrant  1385651864    2970361 Apr 21 12:12 sos-splunk-on-splunk_321.tgz
+-rw-r--r--  1 vagrant  1385651864  202219082 Mar 28 15:30 splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm
+-rw-r--r--@ 1 vagrant  1385651864    4239833 Apr 21 12:12 splunk-6x-dashboard-examples_501.tgz
+-rw-r--r--@ 1 vagrant  1385651864    2370913 Apr 21 12:13 splunk-app-for-unix-and-linux_510.tgz
+-rw-r--r--@ 1 vagrant  1385651864   19449970 May 10 13:11 splunkforwarder-6.4.0-f2c836328108-linux-2.6-x86_64.rpm
+-rw-r--r--  1 vagrant  1385651864   43529656 Apr 25 19:12 vmadditions.tar.gz
+

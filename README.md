@@ -73,6 +73,7 @@ Download the software requirements for the Splunk cluster from their respective 
    |2370913   | splunk-app-for-unix-and-linux_510.tgz                   |
    |19449970  | splunkforwarder-6.4.0-f2c836328108-linux-2.6-x86_64.rpm |
    |43529656  |vmadditions.tar.gz                                       |
+   |659k  |app-for-twitter-data_301.tgz                                       |
 
 *	Optional - grab sampledata/ folder from my download link and unzip to sampledata/ subfolder in repo
   note - this is not used in any automation process, so its not a requirement for the deployment to work

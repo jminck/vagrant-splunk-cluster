@@ -3,8 +3,8 @@
   vars:
       splunkver: 6.4.0-f2c836328108-linux-2.6-x86_64 
       installapps: True
-      # ssl_enabled
-      # auth_enabled
+      #  ssl_enabled
+      #  auth_enabled
 
   tasks:
     - name: Ensure libselinux-python installed
@@ -119,7 +119,7 @@
 
     - name: disable eth1 (workaround because its not getting ip4 address assigned on first start)
       shell: ifdown eth1
-
+      
     - name: enable eth1 (workaround because its not getting ip4 address assigned on first start)
       shell: ifup eth1
 
@@ -151,7 +151,11 @@
         - restart splunk
 
     - name: Splunk master settings
+<<<<<<< HEAD
       command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2
+=======
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 
+>>>>>>> dfd0b60dec3ce8785372a6360c53fe4f7bd4489a
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
@@ -187,6 +191,7 @@
       notify:
         - restart splunk
 
+<<<<<<< HEAD
     - name: restart machine
       shell: sleep 2 && shutdown -r now "Ansible updates triggered"
       async: 1
@@ -198,6 +203,12 @@
       local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300
       sudo: false
 	  
+=======
+    #still trying to get dynamic election to work
+    - name: Start Splunk service
+      service: name=splunk state=restarted enabled=yes
+
+>>>>>>> dfd0b60dec3ce8785372a6360c53fe4f7bd4489a
     - name: Splunk search head captain init
       command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
       when: "'search3' in inventory_hostname"

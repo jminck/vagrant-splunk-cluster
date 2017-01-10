@@ -22,6 +22,7 @@ Vagrant.configure("2") do |config|
     # provision with ansible
    master.vm.provision "ansible" do |ansible|
     ansible.playbook          = "playbook.yml"
+    ansible.verbose = "v"
     ansible.sudo              = true
     ansible.host_key_checking = false
     # ansible.extra_vars        = { installapps: false }
@@ -42,6 +43,7 @@ Vagrant.configure("2") do |config|
      # provision with ansible
    index1.vm.provision "ansible" do |ansible|
      ansible.playbook          = "playbook.yml"
+     ansible.verbose = "v"
      ansible.sudo              = true
      ansible.host_key_checking = false
      # ansible.extra_vars        = { installapps: false }
@@ -62,6 +64,7 @@ Vagrant.configure("2") do |config|
    # provision with ansible
    index2.vm.provision "ansible" do |ansible|
      ansible.playbook          = "playbook.yml"
+     ansible.verbose = "v"
      ansible.sudo              = true
      ansible.host_key_checking = false
    # ansible.extra_vars        = { installapps: false }
@@ -82,6 +85,7 @@ Vagrant.configure("2") do |config|
    # provision with ansible
    index3.vm.provision "ansible" do |ansible|
      ansible.playbook          = "playbook.yml"
+     ansible.verbose = "v"
      ansible.sudo              = true
      ansible.host_key_checking = false
    # ansible.extra_vars        = { installapps: false }
@@ -103,6 +107,7 @@ Vagrant.configure("2") do |config|
    index4.vm.provision "ansible" do |ansible|
      ansible.playbook          = "playbook.yml"
      ansible.sudo              = true
+     ansible.verbose = "v"
      ansible.host_key_checking = false
    # ansible.extra_vars        = { installapps: false }
    end

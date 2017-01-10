@@ -4,7 +4,7 @@ forked from https://github.com/phips/splunkbox
 
 Installs and configures a Splunk cluster, on top of a [CentOS 7 Vagrant Box](https://atlas.hashicorp.com/centos/boxes/7).
 
-You need to have [Ansible](http://ansible.com) installed prior to spinning this box up. 
+You need to have [Ansible](http://ansible.com) installed prior to spinning this box up.
 
 Look at [playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/master/playbook.yml) (for indexers and search heads), and [uf-playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/master/uf-playbook.yml) (for the universal forwarder) to see what Ansible is doing to the base CentOS [box](http://docs.vagrantup.com/v2/virtualbox/boxes.html).
 
@@ -12,8 +12,8 @@ Look at [playbook.yml](http://github.com/jminck/vagrant-splunk-cluster/blob/mast
 
 | Software              | Version     | Download                        |
 | --------------------------------- | ----------- | ----------------------------------------- |
-| Splunk              | 6.4.0    |    [Download Splunk](https://www.splunk.com/page/download_track?file=6.4.0/linux/splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm&platform=Linux&architecture=x86_64&version=6.4.0&product=splunk&typed=release&name=linux_installer) |
-| Splunk Forwarder                     | 6.4.0      | [Download Splunk Forwarder](https://www.splunk.com/page/download_track?file=6.4.0/linux/splunkforwarder-6.4.0-f2c836328108-Linux-x86_64.tgz&platform=Linux&architecture=x86_64&version=6.4.0&product=universalforwarder&typed=release&name=linux_installer)  |
+| Splunk              | 6.5.1    |    [Download Splunk](https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=6.5.1&product=splunk&filename=splunk-6.5.1-f74036626f0c-linux-2.6-x86_64.rpm&wget=true) |
+| Splunk Forwarder                     | 6.5.1      | [Download Splunk Forwarder](https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=6.5.1&product=universalforwarder&filename=splunkforwarder-6.5.1-f74036626f0c-linux-2.6-x86_64.rpm&wget=true)  |
 | Sideview app | 1.3.5 | [Download](https://splunkbase.splunk.com/)|
 | S.o.S. Splunk on Splunk | 3.2.1 | [Download](https://splunkbase.splunk.com/app/748/)|
 | Splunk 6.x Dashboard Examples | 5.0.1| [Download](https://splunkbase.splunk.com/app/1603/)|
@@ -50,7 +50,7 @@ NOTE - this is a work in progress, some of the apps being installed are deprecat
 
 **Must have on your host machine**
 
-* VirtualBox (I'm using 5.0.15) 
+* VirtualBox (I'm using 5.0.15)
 * Vagrant (I'm using 1.8.1)
 * Ansible installed on the host machine (I'm using 2.0.2.0)
   -  I'm running on a MAC, so I installed [Brew] (http://brew.sh/) and then ran **brew install ansible** to get ansible installed on my host machine
@@ -67,11 +67,10 @@ Download the software requirements for the Splunk cluster from their respective 
    | File Size        |  File name                                      |
    |------------------|-------------------------------------------------|
    |197800    | sideview-utils-lgpl_135.tgz                             |
-   |2970361   | sos-splunk-on-splunk_321.tgz                            |
-   |202219082 | splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm          |
+   |222276777 | splunk-6.4.0-f2c836328108-linux-2.6-x86_64.rpm          |
    |4239833   | splunk-6x-dashboard-examples_501.tgz                    |
    |2370913   | splunk-app-for-unix-and-linux_510.tgz                   |
-   |19449970  | splunkforwarder-6.4.0-f2c836328108-linux-2.6-x86_64.rpm |
+   |19671080  | splunkforwarder-6.4.0-f2c836328108-linux-2.6-x86_64.rpm |
    |43529656  |vmadditions.tar.gz                                       |
    |659k  |app-for-twitter-data_301.tgz                                       |
 

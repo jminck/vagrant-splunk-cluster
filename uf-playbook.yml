@@ -1,8 +1,8 @@
 ---
 - hosts: uf1
   vars:
-      splunkver: 6.5.1-f74036626f0c-linux-2.6-x86_64 
-      slunkforwarderver: 6.5.1-f74036626f0c-linux-2.6-x86_64.rpm
+      splunkver: 6.5.1-f74036626f0c-linux-2.6-x86_64
+      slunkforwarderver: 6.5.1-f74036626f0c-linux-2.6-x86_64
       installapps: False
       # ssl_enabled
       # auth_enabled

@@ -3,8 +3,6 @@
   vars:
       splunkver: 6.5.1-f74036626f0c-linux-2.6-x86_64
       installapps: True
-      #  ssl_enabled
-      #  auth_enabled
 
   tasks:
     - name: Ensure libselinux-python installed
@@ -48,9 +46,10 @@
     - name: Ensure Splunk package installed
       yum:  name=/home/vagrant/sync/sw/splunk-{{ splunkver }}.rpm state=present
 
-    # https://apps.splunk.com/app/466/
+    # https://apps.splunk.com/app/466/ (deprecated)
+    # now downloaded from http://sideviewapps.com/apps/sideview-utils/download-full-version-internal-use/
     - name: Install Sideview Utils
-      unarchive: src=sw/sideview-utils-lgpl_135.tgz
+      unarchive: src=sw/sideview_utils.spl
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/apps/sideview_utils
       when: installapps
@@ -122,7 +121,7 @@
       ignore_errors: true
 
     - name: waiting for server to come back
-      local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300
+      local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=600
       sudo: false
 
     - name: Set splunk admin password
@@ -135,11 +134,11 @@
     - name: Get rid of first time logging in? message
       shell: touch /opt/splunk/etc/.ui_login
 
-    - name: Splunk enable web-ssl
-      command: /opt/splunk/bin/splunk enable web-ssl
-      when: "'master' in inventory_hostname"
-      notify:
-        - restart splunk
+#    - name: Splunk enable web-ssl
+#      command: /opt/splunk/bin/splunk enable web-ssl
+#      when: "'master' in inventory_hostname"
+#      notify:
+#        - restart splunk
 
     - name: Splunk master settings
       command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2
@@ -147,36 +146,60 @@
       notify:
         - restart splunk
 
+    - name: Enable deployment server
+      command: /opt/splunk/bin/splunk enable deploy-server
+      when: "'master' in inventory_hostname"
+      notify:
+        - restart splunk
+
     - name: Splunk peer settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri http://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk
       when: "'index' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head master init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri http://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url http://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
 ## Need to fix this, each search peer needs to point at its own mgmt_uri
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://192.168.33.106:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "http://192.168.33.106:8089" -auth admin:splunk
       when: "'search1' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://192.168.33.107:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "http://192.168.33.107:8089" -auth admin:splunk
       when: "'search2' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri  "https://192.168.33.108:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri  "http://192.168.33.108:8089" -auth admin:splunk
       when: "'search3' in inventory_hostname"
       notify:
         - restart splunk
+
+    - name: Determine if enterprise license exists
+      stat: path=files/licenses/enterprise.lic
+      register: ent_license
+
+    - name: Add enterprise license on master
+      command: "/opt/splunk/bin/splunk add licenses {{ item }}"
+      with_fileglob:
+        - files/licenses/*.lic
+      when: ent_license.stat.exists == True and  "'master' in inventory_hostname"
+
+    - name: Configure license pool on master
+      command: "/opt/splunk/bin/splunk edit licenser-pools pool01 -description "MainPool" -quota 50gb -append_slaves true"
+      when: ent_license.stat.exists == True and  "'master' in inventory_hostname"
+
+    - name: Configure license slave
+      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri http://192.168.33.101:8089"
+      when: ent_license.stat.exists == True and  "'master' not in inventory_hostname"
 
     - name: restart machine
       shell: sleep 2 && shutdown -r now "Ansible updates triggered"
@@ -194,13 +217,13 @@
       service: name=splunk state=restarted enabled=yes
 
     - name: Splunk search head captain init
-      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "http://192.168.33.108:8089,http://192.168.33.106:8089,http://192.168.33.107:8089" -auth admin:splunk
       when: "'search3' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head peers config
-      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  http://192.168.33.101:8089 -auth admin:splunk
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
@@ -208,6 +231,17 @@
     - name: Splunk search head disable local index
       command: /opt/splunk/bin/splunk disable local-index
       when: "'search' in inventory_hostname"
+      notify:
+        - restart splunk
+
+    - name: Copy sample app to Deployment server
+      command: cp -r /opt/splunk/etc/apps/sample_app/ /opt/splunk/etc/deployment-apps/sample_app
+      when: "'master' in inventory_hostname"
+
+    - name: Update serverclass.conf on master to make it a Deployment server
+      copy: dest=/opt/splunk/etc/system/local/serverclass.conf
+            src=files/serverclass.conf
+      when: "'master' in inventory_hostname"
       notify:
         - restart splunk
 

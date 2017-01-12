@@ -30,35 +30,14 @@
         regexp="^{{ ansible_default_ipv4.address }}.+$"
         line="{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }}"
 
-    # pulls from EPEL
-    - name: Ensure nginx is installed
-      yum: name=nginx state=present
-
-    - name: Ensure nginx config in place
-      copy: dest=/etc/nginx/nginx.conf
-            src=files/nginx.conf
-      notify:
-        - restart nginx
-
-    - name: Ensure nginx proxies for local Splunk
-      template: src=templates/splunk.conf.j2 dest=/etc/nginx/conf.d/splunk.conf
-                owner=root group=root mode=0644
-      notify:
-        - restart nginx
-
     - name: Ensure Splunk universal forwarder package installed
       yum:  name=/home/vagrant/sync/sw/splunkforwarder-{{ slunkforwarderver }}.rpm state=present
-
-
 
     - name: Ensure Splunk service is configured
       copy: src=files/splunk.init dest=/etc/init.d/splunk
             owner=root group=root mode=0755
       notify:
         - restart splunk
-
-#    - name: Start Splunk service
-#      service: name=splunk state=started enabled=yes
 
     - name: Start nginx service
       service: name=nginx state=started enabled=yes
@@ -81,6 +60,12 @@
     - name: Enable splunk boot start
       shell: /opt/splunkforwarder/bin/splunk enable boot-start
 
+    - name: Enable deployment server URL for this deployment client
+      shell: /opt/splunkforwarder/bin/splunk set deploy-poll 192.168.33.101:8089
+
+    - name: Enable deployment client
+      shell: /opt/splunkforwarder/bin/splunk enable deploy-client
+
     - name: Enable forward server
       shell: /opt/splunkforwarder/bin/splunk add forward-server 192.168.33.102:9997 -auth admin:splunk
 
@@ -95,7 +80,3 @@
 
     - name: restart nginx
       service: name=nginx state=restarted
-
-#    - name: Restart Splunk service
-#      service: name=splunk state=restarted enabled=yes
-# vim: set ts=2 sw=2 et ft=ansible:

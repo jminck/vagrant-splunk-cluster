@@ -12,3 +12,5 @@ Vagrantfile.orig
 *.tgz
 *.csv
 *.CSV
+*.lic
+*.spl

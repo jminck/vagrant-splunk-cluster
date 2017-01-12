@@ -187,7 +187,7 @@
       when: ent_license.stat.exists == True and  "'master' in inventory_hostname"
 
     - name: Configure license slave
-      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri http://192.168.33.101:8089"
+      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089"
       when: ent_license.stat.exists == True and  "'master' not in inventory_hostname"
 
     #still trying to get dynamic election to work
@@ -195,13 +195,13 @@
       service: name=splunk state=restarted enabled=yes
 
     - name: Splunk search head captain init
-      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "http://192.168.33.108:8089,http://192.168.33.106:8089,http://192.168.33.107:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
       when: "'search3' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head peers config
-      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  http://192.168.33.101:8089 -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:splunk
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk

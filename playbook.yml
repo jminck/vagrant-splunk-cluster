@@ -113,17 +113,6 @@
     - name: enable eth1 (workaround because its not getting ip4 address assigned on first start)
       shell: ifup eth1
 
-    - name: restart machine
-      shell: sleep 2 && shutdown -r now "Ansible updates triggered"
-      async: 1
-      poll: 0
-      sudo: true
-      ignore_errors: true
-
-    - name: waiting for server to come back
-      local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=600
-      sudo: false
-
     - name: Set splunk admin password
       shell: /opt/splunk/bin/splunk edit user admin -password splunk -auth admin:changeme
 
@@ -201,17 +190,6 @@
       command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri http://192.168.33.101:8089"
       when: ent_license.stat.exists == True and  "'master' not in inventory_hostname"
 
-    - name: restart machine
-      shell: sleep 2 && shutdown -r now "Ansible updates triggered"
-      async: 1
-      poll: 0
-      sudo: true
-      ignore_errors: true
-
-    - name: waiting for server to come back
-      local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300
-      sudo: false
-
     #still trying to get dynamic election to work
     - name: Start Splunk service
       service: name=splunk state=restarted enabled=yes
@@ -249,6 +227,18 @@
       copy: dest=/opt/splunk/etc/system/local/outputs.conf
             src=files/outputs.conf_searchhead
       when: "'search' in inventory_hostname"
+
+    - name: restart machine
+      shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+      async: 1
+      poll: 0
+      sudo: true
+      ignore_errors: true
+
+    - name: waiting for server to come back
+      local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=600
+      sudo: false
+
 
   handlers:
     - name: restart splunk

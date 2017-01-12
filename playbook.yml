@@ -113,8 +113,14 @@
     - name: enable eth1 (workaround because its not getting ip4 address assigned on first start)
       shell: ifup eth1
 
+    - name: Remove existing passwd file if it exists if we're reloading
+      shell: rm /opt/splunk/etc/passwd
+      notify:
+        - restart splunk
+
     - name: Set splunk admin password
       shell: /opt/splunk/bin/splunk edit user admin -password splunk -auth admin:changeme
+      ignore_errors: true
 
     - name: Enable forward port
       shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:splunk
@@ -130,7 +136,7 @@
 #        - restart splunk
 
     - name: Splunk master settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:splunk
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
@@ -175,17 +181,17 @@
     - name: Add enterprise license on master if it exists
       command: "/opt/splunk/bin/splunk add licenses {{ item }}"
       with_fileglob:
-        - files/licenses/*.lic
+        - /home/vagrant/sync/files/licenses/*.lic
       when: "'master' in inventory_hostname"
       ignore_errors: true
 
     - name: Configure license pool on master
-      command: "/opt/splunk/bin/splunk edit licenser-pools pool01 -description MainPool -quota 50gb -append_slaves true"
-      when: ent_license.stat.exists == True and  "'master' in inventory_hostname"
+      command: "/opt/splunk/bin/splunk edit licenser-pools pool01 -description MainPool -quota 500mb -append_slaves true"
+      when: "'master' in inventory_hostname"
 
     - name: Configure license slave
       command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089"
-      when: ent_license.stat.exists == True and  "'master' not in inventory_hostname"
+      when: "'master' not in inventory_hostname"
 
     #still trying to get dynamic election to work
     - name: Start Splunk service

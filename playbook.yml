@@ -172,15 +172,12 @@
       notify:
         - restart splunk
 
-    - name: Determine if enterprise license exists
-      stat: path=files/licenses/enterprise.lic
-      register: ent_license
-
-    - name: Add enterprise license on master
+    - name: Add enterprise license on master if it exists
       command: "/opt/splunk/bin/splunk add licenses {{ item }}"
       with_fileglob:
         - files/licenses/*.lic
-      when: ent_license.stat.exists == True and  "'master' in inventory_hostname"
+      when: "'master' in inventory_hostname"
+      ignore_errors: true
 
     - name: Configure license pool on master
       command: "/opt/splunk/bin/splunk edit licenser-pools pool01 -description MainPool -quota 50gb -append_slaves true"

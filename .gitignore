@@ -4,7 +4,7 @@
 vagrant_ansible_inventory_default
 *.box
 splunklogs/
-uf-playbook.retry
+*.retry
 Vagrantfile.orig
 *.rpm
 *.tar

@@ -122,18 +122,15 @@
       shell: /opt/splunk/bin/splunk edit user admin -password splunk -auth admin:changeme
       ignore_errors: true
 
-    - name: Enable forward port
-      shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:splunk
-      when: "'index' in inventory_hostname"
-
     - name: Get rid of first time logging in? message
       shell: touch /opt/splunk/etc/.ui_login
 
-#    - name: Splunk enable web-ssl
-#      command: /opt/splunk/bin/splunk enable web-ssl
-#      when: "'master' in inventory_hostname"
-#      notify:
-#        - restart splunk
+###################################################
+## indexer clustering settings
+
+    - name: Enable forward port
+      shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:splunk
+      when: "'index' in inventory_hostname"
 
     - name: Splunk master settings
       command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:splunk
@@ -153,30 +150,8 @@
       notify:
         - restart splunk
 
-    - name: Splunk search head master init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
-      when: "'search' in inventory_hostname"
-      notify:
-        - restart splunk
-
-## Need to fix this, each search peer needs to point at its own mgmt_uri
-    - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://192.168.33.106:8089" -auth admin:splunk
-      when: "'search1' in inventory_hostname"
-      notify:
-        - restart splunk
-
-    - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://192.168.33.107:8089" -auth admin:splunk
-      when: "'search2' in inventory_hostname"
-      notify:
-        - restart splunk
-
-    - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri  "https://192.168.33.108:8089" -auth admin:splunk
-      when: "'search3' in inventory_hostname"
-      notify:
-        - restart splunk
+###################################################
+## Enterprise License installation (if it exists)
 
     - name: Add enterprise license on master if it exists
       command: "/opt/splunk/bin/splunk add licenses {{ item }}"
@@ -185,13 +160,26 @@
       when: "'master' in inventory_hostname"
       ignore_errors: true
 
-    - name: Configure license pool on master
-      command: "/opt/splunk/bin/splunk edit licenser-pools pool01 -description MainPool -quota 500mb -append_slaves true"
-      when: "'master' in inventory_hostname"
-
     - name: Configure license slave
-      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089"
-      when: "'master' not in inventory_hostname"
+      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089" -auth admin:splunk
+      when: "'index' in inventory_hostname"
+
+###################################################
+## search head clustering
+## master node is also the search head cluster deployer
+
+    - name: Splunk search head master init
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
+      when: "'master' in inventory_hostname"
+      notify:
+        - restart splunk
+
+## Need to fix this, each search peer needs to point at its own mgmt_uri
+    - name: Splunk enable dynamic search head cluster captain
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:splunk  -secret mysecretkey
+      when: "'search' in inventory_hostname"
+      notify:
+        - restart splunk
 
     #still trying to get dynamic election to work
     - name: Start Splunk service

@@ -133,7 +133,7 @@
       when: "'index' in inventory_hostname"
 
     - name: Splunk master settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:splunk -secret mysecretindexerkey
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
@@ -145,7 +145,7 @@
         - restart splunk
 
     - name: Splunk peer settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk -secret mysecretindexerkey
       when: "'index' in inventory_hostname"
       notify:
         - restart splunk
@@ -166,14 +166,14 @@
 ## master node is also the search head cluster deployer
 
     - name: Splunk search head master init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mySplunkSecret
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretsearchheadkey
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
 
 ## Need to fix this, each search peer needs to point at its own mgmt_uri
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:splunk  -secret mysecretkey
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:splunk  -secret mysecretsearchheadkey
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk

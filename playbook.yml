@@ -154,14 +154,8 @@
 ## Enterprise License installation (if it exists)
 
     - name: Add enterprise license on master if it exists
-      command: "/opt/splunk/bin/splunk add licenses {{ item }}"
-      with_file:
-        - /home/vagrant/sync/files/licenses/enterprise.lic
-      when: "'master' in inventory_hostname"
-      register: result
-
-    - debug:
-        var: result
+      command: "/opt/splunk/bin/splunk add licenses /home/vagrant/sync/files/licenses/enterprise.lic"
+      ignore_errors: true
 
     - name: Configure license slave
       command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:splunk"

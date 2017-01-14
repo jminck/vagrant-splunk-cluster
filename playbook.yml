@@ -165,9 +165,15 @@
 ## search head clustering
 ## master node is also the search head cluster deployer
 
-    - name: Splunk search head master init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretsearchheadkey
+    - name: Splunk search deployer init
+      command: curl -k -u admin:splunk https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey=mysecretsearchheadkey
       when: "'master' in inventory_hostname"
+      notify:
+        - restart splunk
+
+    - name: Splunk search head cluster instances init
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretsearchheadkey
+      when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
@@ -196,7 +202,7 @@
 
     - name: Splunk search head disable local index
       command: /opt/splunk/bin/splunk disable local-index
-      when: "'search' in inventory_hostname"
+      when: "'search' in inventory_hostname" or "'master' in inventory_hostname"
       notify:
         - restart splunk
 

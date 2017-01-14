@@ -202,7 +202,7 @@
         - restart splunk
 
     - name: Splunk search head disable local index
-      command: /opt/splunk/bin/splunk disable local-index
+      command: /opt/splunk/bin/splunk disable local-index -auth admin:{{ adminpassword }}
       when: "'search' in inventory_hostname or 'master' in inventory_hostname"
       notify:
         - restart splunk

@@ -115,7 +115,7 @@
       shell: ifup eth1
 
     - name: Remove existing passwd file if it exists if we're reloading
-      shell: rm /opt/splunk/etc/passwd
+      shell: mv /opt/splunk/etc/passwd /opt/splunk/etc/passwd_$(date +%F-%H:%M)
       notify:
         - restart splunk
 
@@ -139,13 +139,13 @@
       notify:
         - restart splunk
 
-    - name: Enable deployment server
+    - name: Enable indexer deployment server
       command: /opt/splunk/bin/splunk enable deploy-server
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
 
-    - name: Splunk peer settings
+    - name: Splunk indexer peer settings
       command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:{{ adminpassword }} -secret mysecretindexerkey
       when: "'index' in inventory_hostname"
       notify:
@@ -167,20 +167,20 @@
 ## master node is also the search head cluster deployer
 
     - name: Splunk search deployer init
-      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey=mysecretsearchheadkey
+      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey=mysecretindexerkey
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head cluster instances init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretsearchheadkey
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretindexerkey
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
 ## Need to fix this, each search peer needs to point at its own mgmt_uri
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:{{ adminpassword }}  -secret mysecretsearchheadkey
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:{{ adminpassword }}  -secret mysecretindexerkey
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk

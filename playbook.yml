@@ -178,7 +178,7 @@
 
     - name: Splunk search head cluster instances init
       command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret {{ secret }}
-      when: "'search' in inventory_hostname"
+      when: "'search' in inventory_hostname or 'master' in inventory_hostname"
       notify:
         - restart splunk
 
@@ -198,9 +198,17 @@
       notify:
         - restart splunk
 
-    - name: Splunk search head captain init
-      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
-      when: "'search3' in inventory_hostname"
+#    ## Do not have dynamic captain working properly yet so slumming it with a static captain
+#    - name: Splunk search head dynamic captain init
+#      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
+#      when: "'search3' in inventory_hostname"
+#      notify:
+#        - restart splunk
+
+    ## This would be removed once dynamic captain bootstrapping worked properly
+    - name: Splunk search head static captain
+      command: /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.101:8089 -election false -auth admin:{{ adminpassword }}
+      when: "'search' in inventory_hostname or 'master' in inventory_hostname"
       notify:
         - restart splunk
 

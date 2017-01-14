@@ -3,6 +3,7 @@
   vars:
       splunkver: 6.5.1-f74036626f0c-linux-2.6-x86_64
       installapps: True
+      adminpassword: splunk
 
   tasks:
     - name: Ensure libselinux-python installed
@@ -119,7 +120,7 @@
         - restart splunk
 
     - name: Set splunk admin password
-      shell: /opt/splunk/bin/splunk edit user admin -password splunk -auth admin:changeme
+      shell: /opt/splunk/bin/splunk edit user admin -password {{ adminpassword }} -auth admin:changeme
       ignore_errors: true
 
     - name: Get rid of first time logging in? message
@@ -129,11 +130,11 @@
 ## indexer clustering settings
 
     - name: Enable forward port
-      shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:splunk
+      shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:{{ adminpassword }}
       when: "'index' in inventory_hostname"
 
     - name: Splunk master settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:splunk -secret mysecretindexerkey
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }} -secret mysecretindexerkey
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
@@ -145,7 +146,7 @@
         - restart splunk
 
     - name: Splunk peer settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:splunk -secret mysecretindexerkey
+      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:{{ adminpassword }} -secret mysecretindexerkey
       when: "'index' in inventory_hostname"
       notify:
         - restart splunk
@@ -158,7 +159,7 @@
       ignore_errors: true
 
     - name: Configure license slave
-      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:splunk"
+      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:{{ adminpassword }}"
       when: "'index' in inventory_hostname"
 
 ###################################################
@@ -166,20 +167,20 @@
 ## master node is also the search head cluster deployer
 
     - name: Splunk search deployer init
-      command: curl -k -u admin:splunk https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey=mysecretsearchheadkey
+      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey=mysecretsearchheadkey
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head cluster instances init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:splunk -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretsearchheadkey
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretsearchheadkey
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
 ## Need to fix this, each search peer needs to point at its own mgmt_uri
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:splunk  -secret mysecretsearchheadkey
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:{{ adminpassword }}  -secret mysecretsearchheadkey
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
@@ -189,20 +190,20 @@
       service: name=splunk state=restarted enabled=yes
 
     - name: Splunk search head captain init
-      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
       when: "'search3' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head peers config
-      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:splunk
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }}
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head disable local index
       command: /opt/splunk/bin/splunk disable local-index
-      when: "'search' in inventory_hostname" or "'master' in inventory_hostname"
+      when: "'search' in inventory_hostname or 'master' in inventory_hostname"
       notify:
         - restart splunk
 

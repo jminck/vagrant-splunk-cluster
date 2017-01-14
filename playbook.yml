@@ -4,6 +4,7 @@
       splunkver: 6.5.1-f74036626f0c-linux-2.6-x86_64
       installapps: True
       adminpassword: splunk
+      secret: mysecretkey
 
   tasks:
     - name: Ensure libselinux-python installed
@@ -96,7 +97,7 @@
     - name: Start nginx service
       service: name=nginx state=started enabled=yes
 
-    # pulls from EPEL
+    ## pulls from EPEL
     - name: Ensure dkms is installed needed to preserve additions thru kernel updates
       yum: name=dkms state=present
 
@@ -119,6 +120,7 @@
       notify:
         - restart splunk
 
+    ## ignore errors in case the password is already changed (running vagrant reload --provision)
     - name: Set splunk admin password
       shell: /opt/splunk/bin/splunk edit user admin -password {{ adminpassword }} -auth admin:changeme
       ignore_errors: true
@@ -126,15 +128,15 @@
     - name: Get rid of first time logging in? message
       shell: touch /opt/splunk/etc/.ui_login
 
-###################################################
-## indexer clustering settings
-
+    ###################################################
+    ## indexer clustering settings
+    ###################################################
     - name: Enable forward port
       shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:{{ adminpassword }}
       when: "'index' in inventory_hostname"
 
     - name: Splunk master settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }} -secret mysecretindexerkey
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
@@ -146,46 +148,47 @@
         - restart splunk
 
     - name: Splunk indexer peer settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:{{ adminpassword }} -secret mysecretindexerkey
+      command: /opt/splunk/bin/splunk edit cluster-config -mode slave -master_uri https://192.168.33.101:8089 -replication_port 8080 -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'index' in inventory_hostname"
       notify:
         - restart splunk
 
-###################################################
-## Enterprise License installation (if it exists)
-
+    ###################################################
+    ## Enterprise License installation (if it exists)
+    ###################################################
     - name: Add enterprise license on master if it exists
       command: "/opt/splunk/bin/splunk add licenses /home/vagrant/sync/files/licenses/enterprise.lic"
       ignore_errors: true
+      when: "'master' in inventory_hostname"
 
     - name: Configure license slave
       command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:{{ adminpassword }}"
       when: "'index' in inventory_hostname"
 
-###################################################
-## search head clustering
-## master node is also the search head cluster deployer
-
+    ###################################################
+    ## search head clustering
+    ## master node is also the search head cluster deployer
+    ###################################################
     - name: Splunk search deployer init
-      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey=mysecretindexerkey
+      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey={{ secret }}
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head cluster instances init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret mysecretindexerkey
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret {{ secret }}
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
-## Need to fix this, each search peer needs to point at its own mgmt_uri
+    ## Need to fix this, each search peer needs to point at its own mgmt_uri
     - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:{{ adminpassword }}  -secret mysecretindexerkey
+      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:{{ adminpassword }}  -secret {{ secret }}
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
-    #still trying to get dynamic election to work
+    ## still trying to get dynamic election to work
     - name: Start Splunk service
       service: name=splunk state=restarted enabled=yes
 
@@ -196,7 +199,7 @@
         - restart splunk
 
     - name: Splunk search head peers config
-      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }} -secret mysecretindexerkey
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
@@ -234,12 +237,9 @@
       local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=600
       sudo: false
 
-
   handlers:
     - name: restart splunk
       service: name=splunk state=restarted sleep=30
 
     - name: restart nginx
       service: name=nginx state=restarted
-
-# vim: set ts=2 sw=2 et ft=ansible:

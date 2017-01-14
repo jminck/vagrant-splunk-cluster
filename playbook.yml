@@ -196,7 +196,7 @@
         - restart splunk
 
     - name: Splunk search head peers config
-      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }}
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }} -secret mysecretindexerkey
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk

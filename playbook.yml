@@ -186,12 +186,6 @@
     - name: Start Splunk service
       service: name=splunk state=restarted enabled=yes
 
-    - name: Splunk search head captain init
-      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
-      when: "'search3' in inventory_hostname"
-      notify:
-        - restart splunk
-
     - name: Splunk search head peers config
       command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'search' in inventory_hostname"
@@ -201,6 +195,12 @@
     - name: Splunk search head disable local index
       command: /opt/splunk/bin/splunk disable local-index -auth admin:{{ adminpassword }}
       when: "'search' in inventory_hostname or 'master' in inventory_hostname"
+      notify:
+        - restart splunk
+
+    - name: Splunk search head captain init
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
+      when: "'search3' in inventory_hostname"
       notify:
         - restart splunk
 

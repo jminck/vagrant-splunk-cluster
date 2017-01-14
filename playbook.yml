@@ -134,6 +134,7 @@
     - name: Enable forward port
       shell: /opt/splunk/bin/splunk enable listen 9997 -auth admin:{{ adminpassword }}
       when: "'index' in inventory_hostname"
+      ignore_errors: true
 
     - name: Splunk master settings
       command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }} -secret {{ secret }}
@@ -181,19 +182,19 @@
       notify:
         - restart splunk
 
-    ## Need to fix this, each search peer needs to point at its own mgmt_uri
-    - name: Splunk enable dynamic search head cluster captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:{{ adminpassword }}  -secret {{ secret }}
-      when: "'search' in inventory_hostname"
-      notify:
-        - restart splunk
+#    ## Need to fix this, each search peer needs to point at its own mgmt_uri
+#    - name: Splunk enable dynamic search head cluster captain
+#      command: /opt/splunk/bin/splunk edit shcluster-config -election true -mgmt_uri "https://{{ ansible_default_ipv4.address }}:8089" -auth admin:{{ adminpassword }}  -secret {{ secret }}
+#      when: "'search' in inventory_hostname"
+#      notify:
+#        - restart splunk
 
     ## still trying to get dynamic election to work
     - name: Start Splunk service
       service: name=splunk state=restarted enabled=yes
 
     - name: Splunk search head captain init
-      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'search3' in inventory_hostname"
       notify:
         - restart splunk

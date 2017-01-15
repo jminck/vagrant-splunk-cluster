@@ -1,9 +1,18 @@
-#show indexes
-| eventcount summarize=f index=* index=_* | dedup index | fields index
 
-#show indexes and sources
+## Search head cluster commands for troubleshooting, etc.
 
-| eventcount summarize=false index=* index=_* | dedup index | fields index 
- | map maxsearches=100 search="|metadata type=sourcetypes index=\"$index$\" | eval index=\"$index$\""
- | fields index sourcetype
- 
+sudo /opt/splunk/bin/splunk show shcluster-status -auth admin:splunk
+
+sudo /opt/splunk/bin/splunk show shcluster-config -auth admin:splunk
+
+sudo /opt/splunk/bin/splunk list shcluster-config -auth admin:splunk
+
+sudo /opt/splunk/bin/splunk list shcluster-config -uri https://192.168.33.106:8089 -auth admin:splunk
+
+sudo /opt/splunk/bin/splunk list shcluster-members -auth admin:splunk
+
+sudo /opt/splunk/bin/splunk list shcluster-member-info -auth admin:splunk
+
+sudo /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.108:8089 -election false -secret mysecretkey -auth admin:splunk  -replication_port 34567
+
+sudo /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk

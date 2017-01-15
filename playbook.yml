@@ -207,7 +207,7 @@
 
     ## This would be removed once dynamic captain bootstrapping worked properly
     - name: Splunk search head static captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.101:8089 -election false -auth admin:{{ adminpassword }}
+      command: /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.101:8089 -election false -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'search' in inventory_hostname or 'master' in inventory_hostname"
       notify:
         - restart splunk

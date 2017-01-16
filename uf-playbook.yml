@@ -39,10 +39,14 @@
       notify:
         - restart splunk
 
+   ## adding this because keep getting access denied on the "sart nginx service" step so brute force installing nginx first :/
+    - name: Install nginx (workaround)
+      shell: sudo yum -y install nginx
+
     - name: Start nginx service
       service: name=nginx state=started enabled=yes
       become: true
-      
+
     # pulls from EPEL
     - name: Ensure dkms is installed needed to preserve additions thru kernel updates
       yum: name=dkms state=present

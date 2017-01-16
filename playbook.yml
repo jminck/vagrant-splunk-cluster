@@ -178,16 +178,15 @@
 
     - name: Splunk search head cluster instances init
       command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret {{ secret }}
-      when: "'search' in inventory_hostname or 'master' in inventory_hostname"
+      when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
-    ## still trying to get dynamic election to work
     - name: Start Splunk service
       service: name=splunk state=restarted enabled=yes
 
     - name: Splunk search head peers config
-      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }} -secret {{ secret }}
+      command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.106:8089 -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk

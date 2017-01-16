@@ -41,7 +41,8 @@
 
     - name: Start nginx service
       service: name=nginx state=started enabled=yes
-
+      become: true
+      
     # pulls from EPEL
     - name: Ensure dkms is installed needed to preserve additions thru kernel updates
       yum: name=dkms state=present

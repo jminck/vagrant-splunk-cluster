@@ -15,4 +15,5 @@ Vagrantfile.orig
 *.lic
 *.spl
 samplesdata/splunk_class_examples/*
+*.log
 

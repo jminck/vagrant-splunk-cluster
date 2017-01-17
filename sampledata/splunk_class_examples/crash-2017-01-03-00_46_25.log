@@ -1,0 +1,47 @@
+[167154] 2017-01-03 00:46:25
+Received fatal signal 6 (Aborted).
+ Cause:
+  Signal sent by PID 2262 running under UID 1163.
+ Crashing thread: Main Thread
+ Registers
+   RDI:  [0x00000000E3000000]
+   RSI:  [0x000000000C000000]
+   RBP:  [0x0000200090000600]
+   RSP:  [0xA00000B000000200]
+   RAX:  [0x0000F00005000000]
+   RBX:  [0x0003000000030000]
+   RCX:  [0x000000A0B008800C]
+   RDX:  [0x080320000A000070]
+   EFL:  [0x0505000000100000]
+
+ OS: Linux
+ Arch: x86-64
+
+ Backtrace:
+  [0x000E000A00000030] gsignal + 53 (/lib64/libc.so.6)
+  [0x00002003070E0004] abort + 373 (/lib64/libc.so.6)
+  [0x0000E000008E0000] ? (/lib64/libc.so.6)
+  [0x0000010000000000] __assert_perror_fail + 0 (/lib64/libc.so.6)
+  [0x00D9000D00000000] _ZN11XmlDocument8addChildERK7XmlNode + 61 (dcrusherd)
+  [0x0F00000000E010B0] _Z18getSearchConfigXMLR11XmlDocumentPKPKc + 544 (dcrusherd)
+  [0x0000000060050000] _Z22do_search_process_impliPKPKcP12BundlesSetupb + 6141 (dcrusherd)
+ Linux / usr13.eng.buttercupgames.com / 2.6.32-279.5.2.el6.x86_64 / #1 SMP Fri Aug 24 01:07:11 UTC 2013 / x86_64
+ /etc/redhat-release: CentOS release 6.3 (Final)
+ glibc version: 2.12
+ glibc release: stable
+Last errno: 2
+Threads running: 1
+argv: [dcrusherd --id=i3v5231ep937p14nxvjx --ttl=120 --maxout=500000 --maxtime=8640000 --reduce_freq=10 --user=system-user]
+        0: D0006000 00000000 B000EC00 00E0000F
+        1: 020000C8 D0005B00 50009000 E5040000
+        2: 00400060 F0E040F0 50200000 F005780E
+        3: 060A0400 5800E010 C0066000 00003940
+        4: 00306003 00000030 0000030D 0D000030
+        5: 000A0000 05800600 00E08010 B0008090
+        6: 00D00002 0000A007 00250000 0D000020
+        7: 00100000 05E00000 00009C00 00000700
+        8: 09000000 02803500 0000080F 0000C090
+        9: 00000090 D4C00060 0000000B 00000900
+        A: 05000800 A000008F 0800F3B6 00290F04
+        B: 00080000 04009000 3C000800 00090020
+terminating...

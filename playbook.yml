@@ -53,8 +53,8 @@
     - name: Install Sideview Utils
       unarchive: src=sw/sideview_utils.spl
                  dest=/opt/splunk/etc/apps
-                 creates=/opt/splunk/etc/apps/sideview_utils
-      when: installapps
+                 creates=/opt/splunk/etc/master-apps/sideview_utils
+      when: installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -62,8 +62,8 @@
     - name: Install Splunk-6 dashboard examples
       unarchive: src=sw/splunk-6x-dashboard-examples_501.tgz
                  dest=/opt/splunk/etc/apps
-                 creates=/opt/splunk/etc/apps/simple_xml_examples
-      when: installapps
+                 creates=/opt/splunk/etc/master-apps/simple_xml_examples
+      when: installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -71,8 +71,8 @@
     - name: Install Splunk App for UNIX and Linux
       unarchive: src=sw/splunk-app-for-unix-and-linux_510.tgz
                  dest=/opt/splunk/etc/apps
-                 creates=/opt/splunk/etc/apps/splunk_app_for_nix
-      when: installapps
+                 creates=/opt/splunk/etc/master-apps/splunk_app_for_nix
+      when: installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -80,8 +80,8 @@
     - name: Install Splunk App for Twitter
       unarchive: src=sw/app-for-twitter-data_301.tgz
                  dest=/opt/splunk/etc/apps
-                 creates=/opt/splunk/etc/apps/app-for-twitter-data
-      when: installapps
+                 creates=/opt/splunk/etc/master-apps/app-for-twitter-data
+      when: installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -170,22 +170,24 @@
     ## search head clustering
     ## master node is also the search head cluster deployer
     ###################################################
-    - name: Splunk search deployer init
-      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1 -d pass4SymmKey={{ secret }}
+    - name: Splunk search deployer init [secret]
+      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/general -d pass4SymmKey={{ secret }}
+      when: "'master' in inventory_hostname"
+
+    - name: Splunk search deployer init [cluster label]
+      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
 
     - name: Splunk search head cluster instances init
-      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://192.168.33.101:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret {{ secret }}
+      command: /opt/splunk/bin/splunk init shcluster-config -auth admin:{{ adminpassword }} -mgmt_uri https://{{ ansible_default_ipv4.address }}:8089 -replication_port 34567 -replication_factor 2 -conf_deploy_fetch_url https://192.168.33.101:8089  -shcluster_label shcluster1 -secret {{ secret }}
       when: "'search' in inventory_hostname"
       notify:
         - restart splunk
 
-    - name: Start Splunk service
-      service: name=splunk state=restarted enabled=yes
-
-    - name: Splunk search head peers config
+    ## integrate with indexer cluster
+    - name: Integrate search head with indexer cluster
       command: /opt/splunk/bin/splunk edit cluster-config -mode searchhead -master_uri  https://192.168.33.101:8089 -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'search' in inventory_hostname"
       notify:
@@ -197,23 +199,17 @@
       notify:
         - restart splunk
 
-#    ## Do not have dynamic captain working properly yet so slumming it with a static captain
-#    - name: Splunk search head dynamic captain init
-#      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
-#      when: "'search3' in inventory_hostname"
-#      notify:
-#        - restart splunk
-
-    ## This would be removed once dynamic captain bootstrapping worked properly
-    - name: Splunk search head static captain
-      command: /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.106:8089 -election false -auth admin:{{ adminpassword }} -secret {{ secret }}
-      when: "'search' in inventory_hostname"
+    - name: Splunk search head dynamic captain init
+      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
+      when: "'search3' in inventory_hostname"
       notify:
         - restart splunk
 
-    - name: Copy sample app to Deployment server
-      command: cp -r /opt/splunk/etc/apps/sample_app/ /opt/splunk/etc/deployment-apps/sample_app
-      when: "'master' in inventory_hostname"
+    ## This would be removed once dynamic captain bootstrapping worked properly
+#    - name: Splunk search head static captain
+#      command: /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.106:8089 -election false -auth admin:{{ adminpassword }} -secret {{ secret }}
+#      when: "'search' in inventory_hostname"
+#        - restart splunk
 
     - name: Update serverclass.conf on master to make it a Deployment server
       copy: dest=/opt/splunk/etc/system/local/serverclass.conf

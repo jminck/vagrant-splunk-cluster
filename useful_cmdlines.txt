@@ -16,3 +16,26 @@ sudo /opt/splunk/bin/splunk list shcluster-member-info -auth admin:splunk
 sudo /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.108:8089 -election false -secret mysecretkey -auth admin:splunk  -replication_port 34567
 
 sudo /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:splunk
+
+
+## Indexer Cluster bundle push from Deployment server
+## apps go in /opt/splunk/etc/master-apps on deployment server
+## they end up in /opt/splunk/etc/slave-apps on the peers
+
+/opt/splunk/bin/splunk validate cluster-bundle
+
+/opt/splunk/bin/splunk show cluster-bundle-status
+
+/opt/splunk/bin/splunk apply cluster-bundle
+
+## Deploy apps to search head cluster
+
+/opt/splunk/bin/splunk apply shcluster-bundle -target https://192.168.33.106:8089 -user admin:splunk --answer-yes
+
+splunk apply shcluster-bundle -action stage && splunk apply shcluster-bundle -action send
+
+splunk rolling-restart shcluster-members
+
+splunk show shcluster-status -auth admin:splunk
+
+splunk show kvstore-status -auth admin:splunk

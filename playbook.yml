@@ -163,7 +163,7 @@
       when: "'master' in inventory_hostname"
 
     - name: Configure license slave
-      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:{{ adminpassword }}"
+      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:{{ adminpassword }}" -secret {{ secret }}
       when: "'index' in inventory_hostname"
 
     ###################################################

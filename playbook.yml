@@ -137,7 +137,7 @@
       ignore_errors: true
 
     - name: Splunk master settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }}
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }} -secret {{ secret }}
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
@@ -170,9 +170,9 @@
     ## search head clustering
     ## master node is also the search head cluster deployer
     ###################################################
-    - name: Splunk search deployer init [secret]
-      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/general -d pass4SymmKey={{ secret }}
-      when: "'master' in inventory_hostname"
+#    - name: Splunk search deployer init [secret]
+#      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/general -d pass4SymmKey={{ secret }}
+#      when: "'master' in inventory_hostname"
 
     - name: Splunk search deployer init [cluster label]
       command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1

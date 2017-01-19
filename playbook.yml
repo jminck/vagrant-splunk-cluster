@@ -137,7 +137,7 @@
       ignore_errors: true
 
     - name: Splunk master settings
-      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }} -secret {{ secret }}
+      command: /opt/splunk/bin/splunk edit cluster-config -mode master -replication_factor 2 -search_factor 2 -auth admin:{{ adminpassword }} 
       when: "'master' in inventory_hostname"
       notify:
         - restart splunk
@@ -163,7 +163,7 @@
       when: "'master' in inventory_hostname"
 
     - name: Configure license slave
-      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:{{ adminpassword }} -secret {{ secret }}"
+      command: "/opt/splunk/bin/splunk edit licenser-localslave -master_uri https://192.168.33.101:8089 -auth admin:{{ adminpassword }}
       when: "'index' in inventory_hostname"
 
     ###################################################

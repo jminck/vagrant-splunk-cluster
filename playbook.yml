@@ -52,7 +52,7 @@
     # now downloaded from http://sideviewapps.com/apps/sideview-utils/download-full-version-internal-use/
     - name: Install Sideview Utils
       unarchive: src=sw/sideview_utils.spl
-                 dest=/opt/splunk/etc/apps
+                 dest=/opt/splunk/etc/shcluster/apps
                  creates=/opt/splunk/etc/master-apps/sideview_utils
       when:
         - installapps and 'master' in inventory_hostname
@@ -62,7 +62,7 @@
     # https://apps.splunk.com/app/1603/
     - name: Install Splunk-6 dashboard examples
       unarchive: src=sw/splunk-6x-dashboard-examples_501.tgz
-                 dest=/opt/splunk/etc/apps
+                 dest=/opt/splunk/etc/shcluster/apps
                  creates=/opt/splunk/etc/master-apps/simple_xml_examples
       when:
         - installapps and 'master' in inventory_hostname
@@ -72,7 +72,7 @@
     # https://apps.splunk.com/app/273/
     - name: Install Splunk App for UNIX and Linux
       unarchive: src=sw/splunk-app-for-unix-and-linux_510.tgz
-                 dest=/opt/splunk/etc/apps
+                 dest=/opt/splunk/etc/shcluster/apps
                  creates=/opt/splunk/etc/master-apps/splunk_app_for_nix
       when:
         - installapps and 'master' in inventory_hostname
@@ -82,7 +82,7 @@
     # https://apps.splunk.com/app/2834/
     - name: Install Splunk App for Twitter
       unarchive: src=sw/app-for-twitter-data_301.tgz
-                 dest=/opt/splunk/etc/apps
+                 dest=/opt/splunk/etc/shcluster/apps
                  creates=/opt/splunk/etc/master-apps/app-for-twitter-data
       when:
         - installapps and 'master' in inventory_hostname

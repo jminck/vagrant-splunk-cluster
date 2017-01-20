@@ -55,8 +55,7 @@
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/sideview_utils
       when:
-        - installapps
-        - 'master' in inventory_hostname
+        - installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -66,8 +65,7 @@
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/simple_xml_examples
       when:
-        - installapps
-        - 'master' in inventory_hostname
+        - installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -77,8 +75,7 @@
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/splunk_app_for_nix
       when:
-        - installapps
-        - 'master' in inventory_hostname
+        - installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -88,8 +85,7 @@
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/app-for-twitter-data
       when:
-        - installapps
-        - 'master' in inventory_hostname
+        - installapps and 'master' in inventory_hostname
       notify:
         - restart splunk
 

@@ -54,7 +54,7 @@
       unarchive: src=sw/sideview_utils.spl
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/sideview_utils
-      when: installapps and 'master' in inventory_hostname
+      when: installapps=True and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -63,7 +63,7 @@
       unarchive: src=sw/splunk-6x-dashboard-examples_501.tgz
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/simple_xml_examples
-      when: installapps and 'master' in inventory_hostname
+      when: installapps=True and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -72,7 +72,7 @@
       unarchive: src=sw/splunk-app-for-unix-and-linux_510.tgz
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/splunk_app_for_nix
-      when: installapps and 'master' in inventory_hostname
+      when: installapps=True and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -81,7 +81,7 @@
       unarchive: src=sw/app-for-twitter-data_301.tgz
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/app-for-twitter-data
-      when: installapps and 'master' in inventory_hostname
+      when: installapps=True and 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -126,7 +126,10 @@
       ignore_errors: true
 
     - name: Get rid of first time logging in? message
-      shell: touch /opt/splunk/etc/.ui_login
+      file:
+        path: /opt/splunk/etc/.ui_login
+        state: touch
+        mode: "u=rw,g=r,o=r"
 
     ###################################################
     ## indexer clustering settings

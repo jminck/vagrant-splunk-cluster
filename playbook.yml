@@ -54,7 +54,9 @@
       unarchive: src=sw/sideview_utils.spl
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/sideview_utils
-      when: installapps=True and 'master' in inventory_hostname
+      when:
+        - installapps == 'True'
+        - 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -63,7 +65,9 @@
       unarchive: src=sw/splunk-6x-dashboard-examples_501.tgz
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/simple_xml_examples
-      when: installapps=True and 'master' in inventory_hostname
+      when:
+        - installapps == 'True'
+        - 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -72,7 +76,9 @@
       unarchive: src=sw/splunk-app-for-unix-and-linux_510.tgz
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/splunk_app_for_nix
-      when: installapps=True and 'master' in inventory_hostname
+      when:
+        - installapps == 'True'
+        - 'master' in inventory_hostname
       notify:
         - restart splunk
 
@@ -81,7 +87,9 @@
       unarchive: src=sw/app-for-twitter-data_301.tgz
                  dest=/opt/splunk/etc/apps
                  creates=/opt/splunk/etc/master-apps/app-for-twitter-data
-      when: installapps=True and 'master' in inventory_hostname
+      when:
+        - installapps == 'True'
+        - 'master' in inventory_hostname
       notify:
         - restart splunk
 

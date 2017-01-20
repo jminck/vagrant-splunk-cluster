@@ -177,9 +177,6 @@
     ## search head clustering
     ## master node is also the search head cluster deployer
     ###################################################
-#    - name: Splunk search deployer init [secret]
-#      command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/general -d pass4SymmKey={{ secret }}
-#      when: "'master' in inventory_hostname"
 
     - name: Splunk search deployer init [cluster label]
       command: curl -k -u admin:{{ adminpassword }} https://192.168.33.101:8089/servicesNS/nobody/system/configs/conf-server/shclustering -d shcluster_label=shcluster1
@@ -206,17 +203,17 @@
       notify:
         - restart splunk
 
-    - name: Splunk search head dynamic captain init
-      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
-      when: "'search3' in inventory_hostname"
-      notify:
-        - restart splunk
+#    - name: Splunk search head dynamic captain init
+#      command: /opt/splunk/bin/splunk bootstrap shcluster-captain -servers_list "https://192.168.33.108:8089,https://192.168.33.106:8089,https://192.168.33.107:8089" -auth admin:{{ adminpassword }}
+#      when: "'search3' in inventory_hostname"
+#      notify:
+#        - restart splunk
 
     ## This would be removed once dynamic captain bootstrapping worked properly
-#    - name: Splunk search head static captain
-#      command: /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.106:8089 -election false -auth admin:{{ adminpassword }} -secret {{ secret }}
-#      when: "'search' in inventory_hostname"
-#        - restart splunk
+    - name: Splunk search head static captain
+      command: /opt/splunk/bin/splunk edit shcluster-config -mode captain -captain_uri https://192.168.33.106:8089 -election false -auth admin:{{ adminpassword }} -secret {{ secret }}
+      when: "'search' in inventory_hostname"
+        - restart splunk
 
     - name: Update serverclass.conf on master to make it a Deployment server
       copy: dest=/opt/splunk/etc/system/local/serverclass.conf

@@ -228,8 +228,8 @@
       when: "'search' in inventory_hostname"
 
     - name: Add NYC accident dashboard to search heads
-      copy: dest=/opt/splunk/etc/apps/search/local/data/ui/views/NYC_Accident_Dashboard.xml
-            src=files/NYC_Accident_Dashboard.xml
+      copy: dest=/opt/splunk/etc/apps/search/local/data/ui/views/nyc_accident_dashboard.xml
+            src=files/nyc_accident_dashboard.xml
       when: "'search' in inventory_hostname"
 
     - name: restart machine

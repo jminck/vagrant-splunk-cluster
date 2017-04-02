@@ -227,6 +227,11 @@
             src=files/outputs.conf_searchhead
       when: "'search' in inventory_hostname"
 
+    - name: Add NYC accident dashboard to search heads
+      copy: dest=/opt/splunk/etc/apps/search/local/data/ui/views/NYC_Accident_Dashboard.xml
+            src=files/NYC_Accident_Dashboard.xml
+      when: "'search' in inventory_hostname"
+
     - name: restart machine
       shell: sleep 2 && shutdown -r now "Ansible updates triggered"
       async: 1
